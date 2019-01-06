@@ -5,8 +5,25 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:SonarQubeTest"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
+        Title="MainWindow" d:DesignHeight="600" d:DesignWidth="1000">
+
     <Grid>
-        
+        <Grid.Resources>
+            <Style TargetType="local:MaterialCard">
+                <Setter Property="Margin" Value="5,0" />
+                <Setter Property="VerticalAlignment" Value="Top" />
+            </Style>
+        </Grid.Resources>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition/>
+            <ColumnDefinition/>
+            <ColumnDefinition/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+        <local:MaterialCard Grid.Column="0" DataContext="{Binding Source={x:Static local:MainWindowVM.SimplicityOfCode}}"/>
+        <local:MaterialCard Grid.Column="1" DataContext="{Binding Source={x:Static local:MainWindowVM.ProblematicOfFutureDevelopment}}"/>
+        <local:MaterialCard Grid.Column="2" DataContext="{Binding Source={x:Static local:MainWindowVM.NeedToSplitClasses}}"/>
     </Grid>
 </Window>
