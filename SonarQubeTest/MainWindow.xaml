@@ -22,8 +22,8 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
-        <local:MaterialCard Grid.Column="0" DataContext="{Binding Source={x:Static local:MainWindowVM.SimplicityOfCode}}"/>
-        <local:MaterialCard Grid.Column="1" DataContext="{Binding Source={x:Static local:MainWindowVM.ProblematicOfFutureDevelopment}}"/>
-        <local:MaterialCard Grid.Column="2" DataContext="{Binding Source={x:Static local:MainWindowVM.NeedToSplitClasses}}"/>
+        <local:MaterialCard Grid.Column="0" DataContext="{Binding SimplicityOfCode}"/>
+        <local:MaterialCard Grid.Column="1" DataContext="{Binding ProblematicOfFutureDevelopment}"/>
+        <local:MaterialCard Grid.Column="2" DataContext="{Binding NeedToSplitClasses}"/>
     </Grid>
 </Window>

@@ -4,6 +4,7 @@ using System.Globalization;
 using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
@@ -85,28 +86,61 @@ namespace SonarQubeTest
     {
         private string _baseAddress = @"http://localhost:9000/api/measures/component";
         private string _urlParams = @"?metricKeys=vulnerabilities,lines,statements,duplicated_lines_density,complexity,functions,classes,code_smells&componentId=AWdwAlOm7p44trtMNcIB";
-        public void Ask()
+        public Dictionary<string, double> Ask()
         {
-            HttpClient client = new HttpClient();
-            client.BaseAddress = new Uri(_baseAddress);
-
-            client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/JSON"));
-
-            HttpResponseMessage response = client.GetAsync(_urlParams).Result;
-            if (response.IsSuccessStatusCode)
+            try
             {
-                var dataObjects = response.Content.ReadAsStringAsync().Result;
-                var component = JsonConvert.DeserializeObject<TopLevel>(dataObjects);
+
+                HttpClient client = new HttpClient();
+                client.BaseAddress = new Uri(_baseAddress);
+
+                client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/JSON"));
+
+                HttpResponseMessage response = client.GetAsync(_urlParams).Result;
+                if (response.IsSuccessStatusCode)
+                {
+                    var dataObjects = response.Content.ReadAsStringAsync().Result;
+                    var component = JsonConvert.DeserializeObject<TopLevel>(dataObjects);
+                    return component.Component.Measures.ToDictionary(d => d.Metric, e => Convert.ToDouble(e.Value));
+                }
+                else
+                {
+                    throw new SonarQubeConnectionException("Serwer zwrócił odpowiedź o kodzie: " + response.StatusCode);
+                }
+            }
+            catch (HttpRequestException exce)
+            {
+                throw new SonarQubeConnectionException("Nie udało sie nawiązać połączenia z SonarQube", exce);
             }
         }
     }
 
-    public static class MainWindowVM
+    public class SonarQubeConnectionException : Exception
     {
-        static public ComplexFactorVM NeedToSplitClasses = new ComplexFactorVM()
+        public SonarQubeConnectionException()
+        {
+        }
+
+        public SonarQubeConnectionException(string message) : base(message)
+        {
+        }
+
+        public SonarQubeConnectionException(string message, Exception innerException) : base(message, innerException)
+        {
+        }
+
+        protected SonarQubeConnectionException(SerializationInfo info, StreamingContext context) : base(info, context)
+        {
+        }
+    }
+
+    public class MainWindowVM
+    {
+        public ComplexFactorVM NeedToSplitClasses { get; } = new ComplexFactorVM()
         {
             Name = "Potrzeba rozbicia klas",
-            Description = "Paramtetr określający na ile klasy obecne w projekcie są przerośnięte lub nadmiernie skomplikowane i mogą w przyszłości utrudniać zrozumienie kodu oraz rozwój aplikacji.",
+            Description =
+                "Paramtetr określający na ile klasy obecne w projekcie są przerośnięte lub nadmiernie skomplikowane i mogą w przyszłości utrudniać zrozumienie kodu oraz rozwój aplikacji.",
             ComplexFactors = new List<ComplexFactor>()
             {
                 new ComplexFactor()
@@ -156,7 +190,8 @@ namespace SonarQubeTest
                             IdealValue = 330
                         }
                     },
-                },new ComplexFactor()
+                },
+                new ComplexFactor()
                 {
                     SimpleFactors = new List<SimpleFactor>()
                     {
@@ -182,10 +217,12 @@ namespace SonarQubeTest
                 },
             }
         };
-        static public ComplexFactorVM ProblematicOfFutureDevelopment = new ComplexFactorVM()
+
+        public ComplexFactorVM ProblematicOfFutureDevelopment { get; } = new ComplexFactorVM()
         {
             Name = "Problematyka dalszego rozwoju",
-            Description = "Parametr ten okresla na ile problematyczny może być dalszy rozwoj aplikacji. Uwzglednione są wszelkie złe praktyki stosowane w kodzie oraz ilość zagnieżdżeń różnego rodzaju pętli i instrukcji warunkowych",
+            Description =
+                "Parametr ten okresla na ile problematyczny może być dalszy rozwoj aplikacji. Uwzglednione są wszelkie złe praktyki stosowane w kodzie oraz ilość zagnieżdżeń różnego rodzaju pętli i instrukcji warunkowych",
             ComplexFactors = new List<ComplexFactor>()
             {
                 new ComplexFactor()
@@ -262,11 +299,12 @@ namespace SonarQubeTest
                 }
             }
         };
-        static public ComplexFactorVM SimplicityOfCode = new ComplexFactorVM()
-        {
 
+        public ComplexFactorVM SimplicityOfCode { get; } = new ComplexFactorVM()
+        {
             Name = "Prostota kodu",
-            Description = "Prostota bieżącego stanu projektu mówi o tym, czy klasy i metody mają odpowiednią wielkość.",
+            Description =
+                "Prostota bieżącego stanu projektu mówi o tym, czy klasy i metody mają odpowiednią wielkość.",
             ComplexFactors = new List<ComplexFactor>()
             {
                 new ComplexFactor()
@@ -342,8 +380,6 @@ namespace SonarQubeTest
                     },
                 },
             }
-
-
         };
     }
     /// <summary>
@@ -351,11 +387,16 @@ namespace SonarQubeTest
     /// </summary>
     public partial class MainWindow : Window
     {
+        public new MainWindowVM DataContext { get => base.DataContext as MainWindowVM; set => base.DataContext = value; }
         public MainWindow()
         {
+            var boo = new MainWindowVM();
+            var sqConnection = new SonarQubeConenction();
+            //var data = sqConnection.Ask();
+            //boo.AddDataFromSonarQube(data);
+
             InitializeComponent();
-            var foo = new SonarQubeConenction();
-            foo.Ask();
+            DataContext = boo;
         }
     }
 }
