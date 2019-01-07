@@ -9,7 +9,7 @@ namespace SonarQubeTest
     {
         public IChartValues ChartValues =>
             new ChartValues<ObservableValue>(ComplexFactors.Select(d => new ObservableValue(d.Quality)));
-        public List<ComplexFactor> ComplexFactors { get; set; }
+        public List<ComplexFactor> ComplexFactors { get; set; } = new List<ComplexFactor>();
         public ComplexFactor Current => ComplexFactors.Last();
 
         public string Name { get; set; }

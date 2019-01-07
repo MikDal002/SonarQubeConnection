@@ -85,7 +85,18 @@ namespace SonarQubeTest
     public class SonarQubeConenction
     {
         private string _baseAddress = @"http://localhost:9000/api/measures/component";
-        private string _urlParams = @"?metricKeys=vulnerabilities,lines,statements,duplicated_lines_density,complexity,functions,classes,code_smells&componentId=AWdwAlOm7p44trtMNcIB";
+        private string _urlParams = $"?metricKeys={Vulnerabilities},{Lines},{Statements},{DuplicatedLinesDensity},{Complexity},{Functions},{Classes},{CodeSmells}&componentId=AWdwAlOm7p44trtMNcIB";
+
+        public static string CodeSmells => "code_smells";
+        public static string Classes => "classes";
+        public static string Functions => "functions";
+        public static string Complexity => "complexity";
+        public static string DuplicatedLinesDensity => "duplicated_lines_density";
+        public static string Statements => "statements";
+        public static string Lines => "lines";
+        public static string Vulnerabilities => "vulnerabilities";
+        
+
         public Dictionary<string, double> Ask()
         {
             try
@@ -141,81 +152,6 @@ namespace SonarQubeTest
             Name = "Potrzeba rozbicia klas",
             Description =
                 "Paramtetr określający na ile klasy obecne w projekcie są przerośnięte lub nadmiernie skomplikowane i mogą w przyszłości utrudniać zrozumienie kodu oraz rozwój aplikacji.",
-            ComplexFactors = new List<ComplexFactor>()
-            {
-                new ComplexFactor()
-                {
-                    SimpleFactors = new List<SimpleFactor>()
-                    {
-                        new SimpleFactor()
-                        {
-                            Name = "Złożoność cyklomatyczna",
-                            CurrentValue = 0.9,
-                            IdealValue = 1
-                        },
-                        new SimpleFactor()
-                        {
-                            Name = "Duplikacja kodu",
-                            CurrentValue = 4,
-                            IdealValue = 0.1,
-                        },
-                        new SimpleFactor()
-                        {
-                            Name = "Ilość linii na klasę",
-                            CurrentValue = 430,
-                            IdealValue = 330
-                        }
-                    },
-                },
-                new ComplexFactor()
-                {
-                    SimpleFactors = new List<SimpleFactor>()
-                    {
-                        new SimpleFactor()
-                        {
-                            Name = "Złożoność cyklomatyczna",
-                            CurrentValue = 0.91,
-                            IdealValue = 1
-                        },
-                        new SimpleFactor()
-                        {
-                            Name = "Duplikacja kodu",
-                            CurrentValue = 3,
-                            IdealValue = 0.1,
-                        },
-                        new SimpleFactor()
-                        {
-                            Name = "Ilość linii na klasę",
-                            CurrentValue = 410,
-                            IdealValue = 330
-                        }
-                    },
-                },
-                new ComplexFactor()
-                {
-                    SimpleFactors = new List<SimpleFactor>()
-                    {
-                        new SimpleFactor()
-                        {
-                            Name = "Złożoność cyklomatyczna",
-                            CurrentValue = 0.95,
-                            IdealValue = 1
-                        },
-                        new SimpleFactor()
-                        {
-                            Name = "Duplikacja kodu",
-                            CurrentValue = 2,
-                            IdealValue = 0.1,
-                        },
-                        new SimpleFactor()
-                        {
-                            Name = "Ilość linii na klasę",
-                            CurrentValue = 380,
-                            IdealValue = 330
-                        }
-                    },
-                },
-            }
         };
 
         public ComplexFactorVM ProblematicOfFutureDevelopment { get; } = new ComplexFactorVM()
@@ -381,6 +317,35 @@ namespace SonarQubeTest
                 },
             }
         };
+
+        public void AddDataFromSonarQube(Dictionary<string, double> data)
+        {
+            var splitClasses = new ComplexFactor()
+            {
+                SimpleFactors = new List<SimpleFactor>()
+                {
+                    new SimpleFactor()
+                    {
+                        Name = "Złożoność cyklomatyczna",
+                        CurrentValue = data[SonarQubeConenction.Complexity],
+                        IdealValue = 1
+                    },
+                    new SimpleFactor()
+                    {
+                        Name = "Duplikacja kodu",
+                        CurrentValue = data[SonarQubeConenction.DuplicatedLinesDensity],
+                        IdealValue = 0.1,
+                    },
+                    new SimpleFactor()
+                    {
+                        Name = "Ilość linii na klasę",
+                        CurrentValue = data[SonarQubeConenction.Lines] / data[SonarQubeConenction.Classes],
+                        IdealValue = 330
+                    }
+                },
+            };
+            NeedToSplitClasses.ComplexFactors.Add(splitClasses);
+        }
     }
     /// <summary>
     /// Interaction logic for MainWindow.xaml
@@ -392,8 +357,8 @@ namespace SonarQubeTest
         {
             var boo = new MainWindowVM();
             var sqConnection = new SonarQubeConenction();
-            //var data = sqConnection.Ask();
-            //boo.AddDataFromSonarQube(data);
+            var data = sqConnection.Ask();
+            boo.AddDataFromSonarQube(data);
 
             InitializeComponent();
             DataContext = boo;
