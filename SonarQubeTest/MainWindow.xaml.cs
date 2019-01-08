@@ -1,9 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
-using System.Net.Http;
-using System.Net.Http.Headers;
 using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
@@ -16,135 +13,10 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
-using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 
 namespace SonarQubeTest
 {
-    public partial class TopLevel
-    {
-        [JsonProperty("component")]
-        public Component Component { get; set; }
-    }
-    public partial class Component
-    {
-        [JsonProperty("id")]
-        public string Id { get; set; }
-
-        [JsonProperty("key")]
-        public string Key { get; set; }
-
-        [JsonProperty("name")]
-        public string Name { get; set; }
-
-        [JsonProperty("qualifier")]
-        public string Qualifier { get; set; }
-
-        [JsonProperty("measures")]
-        public List<Measure> Measures { get; set; }
-    }
-
-    public partial class Measure
-    {
-        [JsonProperty("metric")]
-        public string Metric { get; set; }
-
-        [JsonProperty("value")]
-        public string Value { get; set; }
-
-        [JsonProperty("periods")]
-        public List<Period> Periods { get; set; }
-
-        [JsonProperty("bestValue", NullValueHandling = NullValueHandling.Ignore)]
-        public bool? BestValue { get; set; }
-    }
-
-    public partial class Period
-    {
-        [JsonProperty("index")]
-        public long Index { get; set; }
-
-        [JsonProperty("value")]
-        public string Value { get; set; }
-
-        [JsonProperty("bestValue", NullValueHandling = NullValueHandling.Ignore)]
-        public bool? BestValue { get; set; }
-    }
-    internal static class Converter
-    {
-        public static readonly JsonSerializerSettings Settings = new JsonSerializerSettings
-        {
-            MetadataPropertyHandling = MetadataPropertyHandling.Ignore,
-            DateParseHandling = DateParseHandling.None,
-            Converters =
-            {
-                new IsoDateTimeConverter { DateTimeStyles = DateTimeStyles.AssumeUniversal }
-            },
-        };
-    }
-    public class SonarQubeConenction
-    {
-        private string _baseAddress = @"http://localhost:9000/api/measures/component";
-        private string _urlParams = $"?metricKeys={Vulnerabilities},{Lines},{Statements},{DuplicatedLinesDensity},{Complexity},{Functions},{Classes},{CodeSmells}&componentId=AWdwAlOm7p44trtMNcIB";
-
-        public static string CodeSmells => "code_smells";
-        public static string Classes => "classes";
-        public static string Functions => "functions";
-        public static string Complexity => "complexity";
-        public static string DuplicatedLinesDensity => "duplicated_lines_density";
-        public static string Statements => "statements";
-        public static string Lines => "lines";
-        public static string Vulnerabilities => "vulnerabilities";
-
-
-        public Dictionary<string, double> Ask()
-        {
-            try
-            {
-
-                HttpClient client = new HttpClient();
-                client.BaseAddress = new Uri(_baseAddress);
-
-                client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/JSON"));
-
-                HttpResponseMessage response = client.GetAsync(_urlParams).Result;
-                if (response.IsSuccessStatusCode)
-                {
-                    var dataObjects = response.Content.ReadAsStringAsync().Result;
-                    var component = JsonConvert.DeserializeObject<TopLevel>(dataObjects);
-                    return component.Component.Measures.ToDictionary(d => d.Metric, e => Convert.ToDouble(e.Value));
-                }
-                else
-                {
-                    throw new SonarQubeConnectionException("Serwer zwrócił odpowiedź o kodzie: " + response.StatusCode);
-                }
-            }
-            catch (HttpRequestException exce)
-            {
-                throw new SonarQubeConnectionException("Nie udało sie nawiązać połączenia z SonarQube", exce);
-            }
-        }
-    }
-
-    public class SonarQubeConnectionException : Exception
-    {
-        public SonarQubeConnectionException()
-        {
-        }
-
-        public SonarQubeConnectionException(string message) : base(message)
-        {
-        }
-
-        public SonarQubeConnectionException(string message, Exception innerException) : base(message, innerException)
-        {
-        }
-
-        protected SonarQubeConnectionException(SerializationInfo info, StreamingContext context) : base(info, context)
-        {
-        }
-    }
-
     public class MainWindowVM
     {
         public ComplexFactorVM NeedToSplitClasses { get; } = new ComplexFactorVM()
