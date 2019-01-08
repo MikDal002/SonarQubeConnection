@@ -40,8 +40,11 @@ namespace SonarQubeTest
                 "Prostota bieżącego stanu projektu mówi o tym, czy klasy i metody mają odpowiednią wielkość.",
         };
 
-        public void AddDataFromSonarQube(Dictionary<string, double> data)
+        public void AddDataFromSonarQube(Dictionary<DateTimeOffset, Dictionary<string, double>> data)
         {
+            foreach (var measure in data)
+            {
+               
             var splitClasses = new ComplexFactor()
             {
                 SimpleFactors = new List<SimpleFactor>()
@@ -49,19 +52,19 @@ namespace SonarQubeTest
                     new SimpleFactor()
                     {
                         Name = "Złożoność cyklomatyczna",
-                        CurrentValue = data[SonarQubeConenction.Complexity],
+                        CurrentValue = measure.Value[SonarQubeConenction.Complexity],
                         IdealValue = 1
                     },
                     new SimpleFactor()
                     {
                         Name = "Duplikacja kodu",
-                        CurrentValue = data[SonarQubeConenction.DuplicatedLinesDensity],
+                        CurrentValue = measure.Value[SonarQubeConenction.DuplicatedLinesDensity],
                         IdealValue = 0.1,
                     },
                     new SimpleFactor()
                     {
                         Name = "Ilość linii na klasę",
-                        CurrentValue = data[SonarQubeConenction.Lines] / data[SonarQubeConenction.Classes],
+                        CurrentValue = measure.Value[SonarQubeConenction.Lines] / measure.Value[SonarQubeConenction.Classes],
                         IdealValue = 330
                     }
                 },
@@ -73,19 +76,19 @@ namespace SonarQubeTest
                     new SimpleFactor()
                     {
                         Name = "Złożoność cyklomatyczna",
-                        CurrentValue = data[SonarQubeConenction.Complexity],
+                        CurrentValue = measure.Value[SonarQubeConenction.Complexity],
                         IdealValue = 1
                     },
                     new SimpleFactor()
                     {
                         Name = "Zapachy kodu",
-                        CurrentValue = data[SonarQubeConenction.CodeSmells],
+                        CurrentValue = measure.Value[SonarQubeConenction.CodeSmells],
                         IdealValue = 1,
                     },
                     new SimpleFactor()
                     {
                         Name = "Podatności",
-                        CurrentValue = data[SonarQubeConenction.Vulnerabilities],
+                        CurrentValue = measure.Value[SonarQubeConenction.Vulnerabilities],
                         IdealValue = 1
                     }
                 },
@@ -97,20 +100,20 @@ namespace SonarQubeTest
                 {
                     new SimpleFactor()
                     {
-                        Name = "Ilość linii kodu",
-                        CurrentValue = data[SonarQubeConenction.Lines],
+                        Name = "Ilość linii kodu na klasę",
+                        CurrentValue = measure.Value[SonarQubeConenction.Lines] / measure.Value[SonarQubeConenction.Classes],
                         IdealValue = 330
                     },
                     new SimpleFactor()
                     {
                         Name = "Ilość linii kodu na metodę",
-                        CurrentValue = data[SonarQubeConenction.Lines] / data[SonarQubeConenction.Functions],
+                        CurrentValue = measure.Value[SonarQubeConenction.Lines] / measure.Value[SonarQubeConenction.Functions],
                         IdealValue = 25
                     },
                     new SimpleFactor()
                     {
                         Name = "Ilość metod publicznych na klasę",
-                        CurrentValue = data[SonarQubeConenction.Functions] / data[SonarQubeConenction.Classes],
+                        CurrentValue = measure.Value[SonarQubeConenction.Functions] / measure.Value[SonarQubeConenction.Classes],
                         IdealValue = 12
                     }
                 }
@@ -118,6 +121,7 @@ namespace SonarQubeTest
             NeedToSplitClasses.ComplexFactors.Add(splitClasses);
             ProblematicOfFutureDevelopment.ComplexFactors.Add(futureDevelopment);
             SimplicityOfCode.ComplexFactors.Add(simplicityOfCode);
+            }
         }
     }
     /// <summary>

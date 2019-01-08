@@ -10,8 +10,8 @@ namespace SonarQubeTest
 {
     public class SonarQubeConenction
     {
-        private string _baseAddress = @"http://localhost:9000/api/measures/component";
-        private string _urlParams = $"?metricKeys={Vulnerabilities},{Lines},{Statements},{DuplicatedLinesDensity},{Complexity},{Functions},{Classes},{CodeSmells}&componentId=AWdwAlOm7p44trtMNcIB";
+        private string _baseAddress = @"http://localhost:9000/api/measures/search_history";
+        private string _urlParams = $"?metrics={Vulnerabilities},{Lines},{Statements},{DuplicatedLinesDensity},{Complexity},{Functions},{Classes},{CodeSmells}&component=battletanks";
 
         public static string CodeSmells => "code_smells";
         public static string Classes => "classes";
@@ -23,7 +23,7 @@ namespace SonarQubeTest
         public static string Vulnerabilities => "vulnerabilities";
 
 
-        public Dictionary<string, double> Ask()
+        public Dictionary<DateTimeOffset, Dictionary<string, double>> Ask()
         {
             try
             {
@@ -38,7 +38,17 @@ namespace SonarQubeTest
                 {
                     var dataObjects = response.Content.ReadAsStringAsync().Result;
                     var component = JsonConvert.DeserializeObject<SonarQubeMeasurments>(dataObjects);
-                    return component.Component.Measures.ToDictionary(d => d.Metric, e => Convert.ToDouble((string) e.Value));
+                    Dictionary<DateTimeOffset, Dictionary<string, double>> retDict = component.Measures.First().History.ToDictionary(d => DateTimeOffset.Parse(d.Date), _ => new Dictionary<string, double>());
+
+                    foreach (var meas in component.Measures)
+                    {
+                        foreach (var hist in meas.History)
+                        {
+                            retDict[DateTimeOffset.Parse(hist.Date)].Add(meas.Metric, Convert.ToDouble(hist.Value));
+                        }
+                    }
+                    return retDict;
+                    //return component.Measures.First().Measures.ToDictionary(d => d.Metric, e => Convert.ToDouble((string) e.Value));
                 }
                 else
                 {
