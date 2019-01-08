@@ -47,6 +47,7 @@ namespace SonarQubeTest
                
             var splitClasses = new ComplexFactor()
             {
+                Time = measure.Key,
                 SimpleFactors = new List<SimpleFactor>()
                 {
                     new SimpleFactor()
@@ -71,6 +72,7 @@ namespace SonarQubeTest
             };
             var futureDevelopment = new ComplexFactor()
             {
+                Time = measure.Key,
                 SimpleFactors = new List<SimpleFactor>()
                 {
                     new SimpleFactor()
@@ -96,6 +98,7 @@ namespace SonarQubeTest
 
             var simplicityOfCode = new ComplexFactor()
             {
+                Time = measure.Key,
                 SimpleFactors = new List<SimpleFactor>()
                 {
                     new SimpleFactor()
