@@ -95,7 +95,7 @@ namespace SonarQubeTest
         public static string Statements => "statements";
         public static string Lines => "lines";
         public static string Vulnerabilities => "vulnerabilities";
-        
+
 
         public Dictionary<string, double> Ask()
         {
@@ -159,81 +159,6 @@ namespace SonarQubeTest
             Name = "Problematyka dalszego rozwoju",
             Description =
                 "Parametr ten okresla na ile problematyczny może być dalszy rozwoj aplikacji. Uwzglednione są wszelkie złe praktyki stosowane w kodzie oraz ilość zagnieżdżeń różnego rodzaju pętli i instrukcji warunkowych",
-            ComplexFactors = new List<ComplexFactor>()
-            {
-                new ComplexFactor()
-                {
-                    SimpleFactors = new List<SimpleFactor>()
-                    {
-                        new SimpleFactor()
-                        {
-                            Name = "Złożoność cyklomatyczna",
-                            CurrentValue = 0.9,
-                            IdealValue = 1
-                        },
-                        new SimpleFactor()
-                        {
-                            Name = "Zapachy kodu",
-                            CurrentValue = 10,
-                            IdealValue = 1,
-                        },
-                        new SimpleFactor()
-                        {
-                            Name = "Podatności",
-                            CurrentValue = 10,
-                            IdealValue = 1
-                        }
-                    },
-                },
-                new ComplexFactor()
-                {
-                    SimpleFactors = new List<SimpleFactor>()
-                    {
-                        new SimpleFactor()
-                        {
-                            Name = "Złożoność cyklomatyczna",
-                            CurrentValue = 0.91,
-                            IdealValue = 1
-                        },
-                        new SimpleFactor()
-                        {
-                            Name = "Zapachy kodu",
-                            CurrentValue = 8,
-                            IdealValue = 1,
-                        },
-                        new SimpleFactor()
-                        {
-                            Name = "Podatności",
-                            CurrentValue = 8,
-                            IdealValue = 1
-                        }
-                    },
-                },
-                new ComplexFactor()
-                {
-                    SimpleFactors = new List<SimpleFactor>()
-                    {
-                        new SimpleFactor()
-                        {
-                            Name = "Złożoność cyklomatyczna",
-                            CurrentValue = 0.95,
-                            IdealValue = 1
-                        },
-                        new SimpleFactor()
-                        {
-                            Name = "Zapachy kodu",
-                            CurrentValue = 5,
-                            IdealValue = 1,
-                        },
-                        new SimpleFactor()
-                        {
-                            Name = "Podatności",
-                            CurrentValue = 5,
-                            IdealValue = 1
-                        }
-                    },
-                }
-            }
         };
 
         public ComplexFactorVM SimplicityOfCode { get; } = new ComplexFactorVM()
@@ -241,81 +166,6 @@ namespace SonarQubeTest
             Name = "Prostota kodu",
             Description =
                 "Prostota bieżącego stanu projektu mówi o tym, czy klasy i metody mają odpowiednią wielkość.",
-            ComplexFactors = new List<ComplexFactor>()
-            {
-                new ComplexFactor()
-                {
-                    SimpleFactors = new List<SimpleFactor>()
-                    {
-                        new SimpleFactor()
-                        {
-                            Name = "Ilość linii kodu",
-                            CurrentValue = 430,
-                            IdealValue = 330
-                        },
-                        new SimpleFactor()
-                        {
-                            Name = "Ilość linii kodu na metodę",
-                            CurrentValue = 35,
-                            IdealValue = 25
-                        },
-                        new SimpleFactor()
-                        {
-                            Name = "Ilość metod publicznych na klasę",
-                            CurrentValue = 8,
-                            IdealValue = 12
-                        }
-                    }
-                },
-                new ComplexFactor()
-                {
-                    SimpleFactors = new List<SimpleFactor>()
-                    {
-                        new SimpleFactor()
-                        {
-                            Name = "Ilość linii kodu",
-                            CurrentValue = 420,
-                            IdealValue = 330
-                        },
-                        new SimpleFactor()
-                        {
-                            Name = "Ilość linii kodu na metodę",
-                            CurrentValue = 32,
-                            IdealValue = 25
-                        },
-                        new SimpleFactor()
-                        {
-                            Name = "Ilość metod publicznych na klasę",
-                            CurrentValue = 10,
-                            IdealValue = 12
-                        }
-                    },
-                },
-                new ComplexFactor()
-                {
-                    SimpleFactors = new List<SimpleFactor>()
-                    {
-                        new SimpleFactor()
-                        {
-                            Name = "Ilość linii kodu",
-                            CurrentValue = 410,
-                            IdealValue = 330
-                        },
-                        new SimpleFactor()
-                        {
-                            Name = "Ilość linii kodu na metodę",
-                            CurrentValue = 30,
-                            IdealValue = 25
-                        },
-                        new SimpleFactor()
-                        {
-                            Name = "Ilość metod publicznych na klasę",
-                            CurrentValue = 11,
-                            IdealValue = 12
-                        }
-                    },
-                },
-            }
         };
 
         public void AddDataFromSonarQube(Dictionary<string, double> data)
@@ -344,7 +194,58 @@ namespace SonarQubeTest
                     }
                 },
             };
+            var futureDevelopment = new ComplexFactor()
+            {
+                SimpleFactors = new List<SimpleFactor>()
+                {
+                    new SimpleFactor()
+                    {
+                        Name = "Złożoność cyklomatyczna",
+                        CurrentValue = data[SonarQubeConenction.Complexity],
+                        IdealValue = 1
+                    },
+                    new SimpleFactor()
+                    {
+                        Name = "Zapachy kodu",
+                        CurrentValue = data[SonarQubeConenction.CodeSmells],
+                        IdealValue = 1,
+                    },
+                    new SimpleFactor()
+                    {
+                        Name = "Podatności",
+                        CurrentValue = data[SonarQubeConenction.Vulnerabilities],
+                        IdealValue = 1
+                    }
+                },
+            };
+
+            var simplicityOfCode = new ComplexFactor()
+            {
+                SimpleFactors = new List<SimpleFactor>()
+                {
+                    new SimpleFactor()
+                    {
+                        Name = "Ilość linii kodu",
+                        CurrentValue = data[SonarQubeConenction.Lines],
+                        IdealValue = 330
+                    },
+                    new SimpleFactor()
+                    {
+                        Name = "Ilość linii kodu na metodę",
+                        CurrentValue = data[SonarQubeConenction.Lines] / data[SonarQubeConenction.Functions],
+                        IdealValue = 25
+                    },
+                    new SimpleFactor()
+                    {
+                        Name = "Ilość metod publicznych na klasę",
+                        CurrentValue = data[SonarQubeConenction.Functions] / data[SonarQubeConenction.Classes],
+                        IdealValue = 12
+                    }
+                }
+            };
             NeedToSplitClasses.ComplexFactors.Add(splitClasses);
+            ProblematicOfFutureDevelopment.ComplexFactors.Add(futureDevelopment);
+            SimplicityOfCode.ComplexFactors.Add(simplicityOfCode);
         }
     }
     /// <summary>
