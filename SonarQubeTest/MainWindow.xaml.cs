@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Reactive.Linq;
 using System.Runtime.Serialization;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -44,53 +46,58 @@ namespace SonarQubeTest
         {
             foreach (var measure in data)
             {
-               
+                AddSingleDataFromSonarQube(measure.Key, measure.Value);
+            }
+        }
+
+        public void AddSingleDataFromSonarQube(DateTimeOffset time, Dictionary<string, double> measures)
+        {
             var splitClasses = new ComplexFactor()
             {
-                Time = measure.Key,
+                Time = time,
                 SimpleFactors = new List<SimpleFactor>()
                 {
                     new SimpleFactor()
                     {
                         Name = "Złożoność cyklomatyczna",
-                        CurrentValue = measure.Value[SonarQubeConenction.Complexity] / 10,
+                        CurrentValue = measures[SonarQubeConnection.Complexity] / 10,
                         IdealValue = 10
                     },
                     new SimpleFactor()
                     {
                         Name = "Duplikacja kodu",
-                        CurrentValue = measure.Value[SonarQubeConenction.DuplicatedLinesDensity],
+                        CurrentValue = measures[SonarQubeConnection.DuplicatedLinesDensity],
                         Kind = ValueType.Percentage,
                     },
                     new SimpleFactor()
                     {
                         Name = "Ilość linii na klasę",
-                        CurrentValue = measure.Value[SonarQubeConenction.Lines] / measure.Value[SonarQubeConenction.Classes],
+                        CurrentValue = measures[SonarQubeConnection.Lines] / measures[SonarQubeConnection.Classes],
                         IdealValue = 330
                     }
                 },
             };
             var futureDevelopment = new ComplexFactor()
             {
-                Time = measure.Key,
+                Time = time,
                 SimpleFactors = new List<SimpleFactor>()
                 {
                     new SimpleFactor()
                     {
                         Name = "Złożoność cyklomatyczna",
-                        CurrentValue = measure.Value[SonarQubeConenction.Complexity] / 10,
+                        CurrentValue = measures[SonarQubeConnection.Complexity] / 10,
                         IdealValue = 10
                     },
                     new SimpleFactor()
                     {
                         Name = "Zapachy kodu",
-                        CurrentValue = measure.Value[SonarQubeConenction.CodeSmells]  / 10,
+                        CurrentValue = measures[SonarQubeConnection.CodeSmells]  / 10,
                         IdealValue = 30
                     },
                     new SimpleFactor()
                     {
                         Name = "Podatności",
-                        CurrentValue = measure.Value[SonarQubeConenction.Vulnerabilities],
+                        CurrentValue = measures[SonarQubeConnection.Vulnerabilities],
                         IdealValue = 10
                     }
                 },
@@ -98,25 +105,25 @@ namespace SonarQubeTest
 
             var simplicityOfCode = new ComplexFactor()
             {
-                Time = measure.Key,
+                Time = time,
                 SimpleFactors = new List<SimpleFactor>()
                 {
                     new SimpleFactor()
                     {
                         Name = "Ilość linii kodu na klasę",
-                        CurrentValue = measure.Value[SonarQubeConenction.Lines] / measure.Value[SonarQubeConenction.Classes],
+                        CurrentValue = measures[SonarQubeConnection.Lines] / measures[SonarQubeConnection.Classes],
                         IdealValue = 330
                     },
                     new SimpleFactor()
                     {
                         Name = "Ilość linii kodu na metodę",
-                        CurrentValue = measure.Value[SonarQubeConenction.Lines] / measure.Value[SonarQubeConenction.Functions],
+                        CurrentValue = measures[SonarQubeConnection.Lines] / measures[SonarQubeConnection.Functions],
                         IdealValue = 25
                     },
                     new SimpleFactor()
                     {
                         Name = "Ilość metod publicznych na klasę",
-                        CurrentValue = measure.Value[SonarQubeConenction.Functions] / measure.Value[SonarQubeConenction.Classes],
+                        CurrentValue = measures[SonarQubeConnection.Functions] / measures[SonarQubeConnection.Classes],
                         IdealValue = 12
                     }
                 }
@@ -124,7 +131,6 @@ namespace SonarQubeTest
             NeedToSplitClasses.ComplexFactors.Add(splitClasses);
             ProblematicOfFutureDevelopment.ComplexFactors.Add(futureDevelopment);
             SimplicityOfCode.ComplexFactors.Add(simplicityOfCode);
-            }
         }
     }
     /// <summary>
@@ -136,9 +142,24 @@ namespace SonarQubeTest
         public MainWindow()
         {
             var boo = new MainWindowVM();
-            var sqConnection = new SonarQubeConenction();
-            var data = sqConnection.Ask();
-            boo.AddDataFromSonarQube(data);
+            var sqConnection = new SonarQubeConnection();
+            try
+            {
+                var data = sqConnection.Ask();
+                var obs = data.ToObservable().Delay(TimeSpan.FromSeconds(2));
+                obs.Subscribe(d =>
+                {
+                    Thread.Sleep(300);
+                    boo.AddSingleDataFromSonarQube(d.Key, d.Value);
+                });
+            }
+            catch (SonarQubeConnectionException exce)
+            {
+                MessageBox.Show("Nie udało się pobrać danych z SonarQube.", "Błąd połaczenia z SonarQube",
+                    MessageBoxButton.OK, MessageBoxImage.Error);
+                this.Close();
+            }
+
 
             InitializeComponent();
             DataContext = boo;

@@ -71,10 +71,11 @@
             </TextBlock.Style>
         </TextBlock>
 
-        <wpf:CartesianChart Grid.Row="2" Margin="0, 0, 0, 0" MinHeight="200" VerticalAlignment="Stretch" Hoverable="False" DataTooltip="{x:Null}">
+        <wpf:CartesianChart Grid.Row="2" Margin="0, 0, 0, 0" AnimationsSpeed="0:0:0.5" MinHeight="200" VerticalAlignment="Stretch" Hoverable="False" >
             <wpf:CartesianChart.AxisX>
                 <!--a small visual improvement, lets hide the first points (x = 0, x=1) to get better animations-->
-                <wpf:Axis MinValue="0"></wpf:Axis>
+                <wpf:Axis MinValue="0">
+                </wpf:Axis>
             </wpf:CartesianChart.AxisX>
             <wpf:CartesianChart.Series>
                 <liveCharts:SeriesCollection>

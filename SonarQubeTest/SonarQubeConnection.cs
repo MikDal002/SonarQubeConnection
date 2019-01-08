@@ -8,7 +8,7 @@ using Newtonsoft.Json;
 
 namespace SonarQubeTest
 {
-    public class SonarQubeConenction
+    public class SonarQubeConnection
     {
         private string _baseAddress = @"http://localhost:9000/api/measures/search_history";
         private string _urlParams = $"?metrics={Vulnerabilities},{Lines},{Statements},{DuplicatedLinesDensity},{Complexity},{Functions},{Classes},{CodeSmells}&component=battletanks";
@@ -55,9 +55,12 @@ namespace SonarQubeTest
                     throw new SonarQubeConnectionException("Serwer zwrócił odpowiedź o kodzie: " + response.StatusCode);
                 }
             }
-            catch (HttpRequestException exce)
+            catch (Exception exce)
             {
-                throw new SonarQubeConnectionException("Nie udało sie nawiązać połączenia z SonarQube", exce);
+                if (exce.InnerException is HttpRequestException er)
+                    throw new SonarQubeConnectionException("Nie udało sie nawiązać połączenia z SonarQube", er);
+                else
+                    throw exce;
             }
         }
     }

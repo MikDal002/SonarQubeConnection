@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Text;
@@ -25,7 +26,7 @@ namespace SonarQubeTest
 
             Name = "Prostota kodu",
             Description = "Prostota bieżącego stanu projektu mówi o tym, czy klasy i metody mają odpowiednią wielkość.",
-            ComplexFactors = new List<ComplexFactor>()
+            ComplexFactors = new ObservableCollection<ComplexFactor>()
             {
                 new ComplexFactor()
                 {
