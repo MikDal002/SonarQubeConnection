@@ -52,14 +52,14 @@ namespace SonarQubeTest
                     new SimpleFactor()
                     {
                         Name = "Złożoność cyklomatyczna",
-                        CurrentValue = measure.Value[SonarQubeConenction.Complexity],
-                        IdealValue = 1
+                        CurrentValue = measure.Value[SonarQubeConenction.Complexity] / 10,
+                        IdealValue = 10
                     },
                     new SimpleFactor()
                     {
                         Name = "Duplikacja kodu",
                         CurrentValue = measure.Value[SonarQubeConenction.DuplicatedLinesDensity],
-                        IdealValue = 0.1,
+                        Kind = ValueType.Percentage,
                     },
                     new SimpleFactor()
                     {
@@ -76,20 +76,20 @@ namespace SonarQubeTest
                     new SimpleFactor()
                     {
                         Name = "Złożoność cyklomatyczna",
-                        CurrentValue = measure.Value[SonarQubeConenction.Complexity],
-                        IdealValue = 1
+                        CurrentValue = measure.Value[SonarQubeConenction.Complexity] / 10,
+                        IdealValue = 10
                     },
                     new SimpleFactor()
                     {
                         Name = "Zapachy kodu",
-                        CurrentValue = measure.Value[SonarQubeConenction.CodeSmells],
-                        IdealValue = 1,
+                        CurrentValue = measure.Value[SonarQubeConenction.CodeSmells]  / 10,
+                        IdealValue = 30
                     },
                     new SimpleFactor()
                     {
                         Name = "Podatności",
                         CurrentValue = measure.Value[SonarQubeConenction.Vulnerabilities],
-                        IdealValue = 1
+                        IdealValue = 10
                     }
                 },
             };

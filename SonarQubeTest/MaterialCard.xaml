@@ -92,10 +92,9 @@
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
                         <DockPanel Margin="0, 10">
-
                             <TextBlock DockPanel.Dock="Right">
                                 <Run Text="{Binding CurrentValue, StringFormat={}{0:N1}}" />
-                                <Run Text="na"/>
+                                <Run Text="vs."/>
                                 <Run Text="{Binding IdealValue}"/>
                                 <Run Text="{Binding Quality, Mode=OneWay, StringFormat={}({0:P0})}" />
                             </TextBlock>

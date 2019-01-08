@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace SonarQubeTest
@@ -13,6 +14,7 @@ namespace SonarQubeTest
     }
     public class ComplexFactor
     {
+        public DateTimeOffset Time { get; set; }
         public ComplexFactorQuality QualityCategory
         {
             get
